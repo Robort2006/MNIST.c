@@ -1,0 +1,32 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "编译 MNIST 项目",
+            "command": "C:\\MyDaiMa\\mingw64\\bin\\gcc.exe",
+            "args": [
+                "-g",
+                "c\\main.c",
+                "c\\infer.c",
+                "c\\matrix.c",
+                "c\\bmp.c",
+                "c\\preprocess.c",
+                "-o",
+                "${workspaceFolder}\\main.exe",
+                "-lm"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "编译 main.c + infer.c + matrix.c，输出 main.exe"
+        }
+    ]
+}

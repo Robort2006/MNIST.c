@@ -1,0 +1,22 @@
+# 编译产物
+*.exe
+*.o
+*.obj
+*.a
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# IDE / 编辑器个人配置
+.idea/
+
+# 数据集（约60MB，不提交，用 download_mnist.py 下载）
+data/
+
+# 系统文件
+Thumbs.db
+.DS_Store
