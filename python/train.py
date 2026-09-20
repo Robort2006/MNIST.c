@@ -21,14 +21,15 @@ WEIGHTS_H = os.path.join(HERE, "..", "c", "weights.h")      # 导出的 C 头文
 IN_SIZE = 784      # 输入：28*28
 HIDDEN = 128       # 隐藏层神经元数
 OUT_SIZE = 10      # 输出：数字 0~9
-EPOCHS = 10        # 数据增强后需要更多轮收敛
+EPOCHS = 15        # 数据增强幅度大，需要更多轮收敛
 BATCH = 64
 LR = 1e-3
 
 # 数据增强幅度
 SHIFT_PX = 3       # 随机平移 ±3 像素
-ROTATE_DEG = 10    # 随机旋转 ±10 度
-SCALE_RATIO = 0.1  # 随机缩放 0.9~1.1 倍
+ROTATE_DEG = 30    # 随机旋转 ±30 度（提高斜写鲁棒性）
+SCALE_RATIO = 0.12  # 随机缩放 0.88~1.12 倍
+SHEAR = 0.35       # 水平剪切（斜体）±0.35，模拟手写倾斜风格
 
 
 # ---------- 1. 读取 MNIST 原始 idx 文件（不依赖 torchvision） ----------
@@ -68,12 +69,12 @@ class MLP(nn.Module):
         return x
 
 
-# ---------- 2.5 数据增强：随机平移+旋转+缩放，让模型对位置/大小/角度鲁棒 ----------
+# ---------- 2.5 数据增强：随机平移+旋转+剪切+缩放，让模型对位置/角度/斜体鲁棒 ----------
 def augment(x):
     """
     x: [N,784] 一个批次的归一化图片
-    每张图随机平移、旋转、缩放后返回（形状不变）。
-    作用：全连接网络对位置敏感，增强后模型不会因为数字移动几像素就认错。
+    每张图随机平移、旋转、剪切(斜体)、缩放后返回（形状不变）。
+    作用：全连接网络对位置/角度敏感，增强后模型能识别倾斜、歪写的数字。
     """
     n = x.size(0)
     x = x.view(n, 1, 28, 28)
@@ -88,14 +89,18 @@ def augment(x):
 
     cos = torch.cos(angle) / scale
     sin = torch.sin(angle) / scale
+    # 水平剪切（斜体）：x 随 y 偏移，模拟手写倾斜
+    shx = (torch.rand(n) * 2 - 1) * SHEAR
 
-    # 组装仿射变换矩阵 [N,2,3]
+    # 组装仿射变换矩阵 [N,2,3]：先剪切 H 再旋转 R，R*H
+    #   [cos, cos*shx - sin]
+    #   [sin, sin*shx + cos]
     theta = torch.zeros(n, 2, 3)
     theta[:, 0, 0] = cos
-    theta[:, 0, 1] = -sin
+    theta[:, 0, 1] = cos * shx - sin
     theta[:, 0, 2] = tx
     theta[:, 1, 0] = sin
-    theta[:, 1, 1] = cos
+    theta[:, 1, 1] = sin * shx + cos
     theta[:, 1, 2] = ty
 
     grid = F.affine_grid(theta, x.size(), align_corners=False)

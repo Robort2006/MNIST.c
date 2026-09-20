@@ -77,7 +77,7 @@ static int run_batch_mode(void)
     printf("Correct:  %d\n", correct);
     printf("Wrong:    %d\n", TEST_NUM - correct);
     printf("Accuracy: %.2f%%\n", acc);
-    printf("(Python training accuracy was 97.48%%)\n");
+    printf("(Python training accuracy was 97.33%%)\n");
     return 0;
 }
 

@@ -1,6 +1,8 @@
 #ifndef PREPROCESS_H
 #define PREPROCESS_H
 
+#include "mnist_api.h"
+
 /*
  * preprocess.h —— 手写数字图像预处理（自动标准化为MNIST风格）
  *
@@ -19,6 +21,6 @@
 /* 输入：784个归一化像素(0.0~1.0)，黑底白字
  * 输出：标准化后的784个归一化像素
  */
-void preprocess_normalize(const float input[784], float output[784]);
+MNIST_API void preprocess_normalize(const float input[784], float output[784]);
 
 #endif /* PREPROCESS_H */
